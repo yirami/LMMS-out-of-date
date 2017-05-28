@@ -26,7 +26,7 @@
     <property name="title">
      <string>更改</string>
     </property>
-    <widget class="QPushButton" name="pushButton">
+    <widget class="QPushButton" name="storageButton">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -45,7 +45,7 @@
       <string>入库</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton_2">
+    <widget class="QPushButton" name="prescribeButton">
      <property name="geometry">
       <rect>
        <x>120</x>
@@ -64,7 +64,7 @@
       <string>处方</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton_3">
+    <widget class="QPushButton" name="maintainButton">
      <property name="geometry">
       <rect>
        <x>230</x>
@@ -96,7 +96,7 @@
     <property name="title">
      <string>查询</string>
     </property>
-    <widget class="QPushButton" name="pushButton_4">
+    <widget class="QPushButton" name="detailsButton">
      <property name="geometry">
       <rect>
        <x>20</x>
@@ -115,7 +115,7 @@
       <string>清单</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton_5">
+    <widget class="QPushButton" name="logButton">
      <property name="geometry">
       <rect>
        <x>130</x>
@@ -226,7 +226,7 @@ p, li { white-space: pre-wrap; }
     <enum>TopToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
-    <bool>true</bool>
+    <bool>false</bool>
    </attribute>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
