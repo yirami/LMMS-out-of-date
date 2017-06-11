@@ -2,47 +2,13 @@
 
 #include <QDebug>
 #include <QCloseEvent>
-#include <QAbstractItemView>
 #include <QSqlRecord>
-#include <QVector>
-#include <QMessageBox>
 
 storageDlg::storageDlg(QWidget *parent)
     : QDialog(parent)
 {
     setUI();
-    mainDB = QSqlDatabase::database(mainName);
-    if (QSqlDatabase::contains(stoName))
-    {
-        stoDB = QSqlDatabase::database(stoName);
-    }
-    else
-    {
-        stoDB = QSqlDatabase::addDatabase("QSQLITE",stoName);
-        stoDB.setDatabaseName("");
-        stoDB.open();
-        QSqlQuery query = QSqlQuery(stoDB);
-        query.exec("create table inMedicine(id int primary key,state int,药品代码 varchar,药品名 varchar,厂商 varchar,规格 varchar,新增数量 int,单价 int)");
-    }
-    storageModel = new QSqlTableModel(this,stoDB);
-    storageModel->setTable("inMedicine");
-    storageModel->select();
-    storageModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    tabV->setModel(storageModel);
-    tabV->setColumnWidth(0,40);
-    tabV->setColumnWidth(1,60);
-    tabV->setColumnWidth(2,160);
-    tabV->setColumnWidth(3,200);
-    tabV->setColumnWidth(4,200);
-    tabV->setColumnWidth(5,60);
-    tabV->setColumnWidth(6,80);
-    tabV->setColumnWidth(7,60);
-    tabV->setColumnHidden(0,true);
-    tabV->setColumnHidden(1,true);
-    tabV->sortByColumn(0,Qt::AscendingOrder);
-    tabV->setSortingEnabled(true);
-    tabV->setSelectionBehavior(QAbstractItemView::SelectRows);
-    tabV->setSelectionMode( QAbstractItemView::SingleSelection);
+    configModel();
     tabV->show();
 
     connect(addB,SIGNAL(clicked()),this,SLOT(on_addB_clicked()));
@@ -104,58 +70,83 @@ void storageDlg::setUI()
     submitB->setEnabled(false);
 }
 
+void storageDlg::configModel()
+{
+    tabV->setModel(storageData);
+    tabV->setColumnWidth(0,100);
+    tabV->setColumnWidth(1,180);
+    tabV->setColumnWidth(2,180);
+    tabV->setColumnWidth(3,100);
+    tabV->setColumnWidth(4,80);
+    tabV->setColumnWidth(5,80);
+    tabV->setColumnWidth(6,60);
+    tabV->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    tabV->setSelectionBehavior(QAbstractItemView::SelectRows);
+    tabV->setSelectionMode( QAbstractItemView::SingleSelection);
+}
+
 void storageDlg::on_cancelB_clicked()
 {
-    int rowEnd = storageModel->rowCount();
-    for (int nextOne = 0;nextOne<rowEnd;nextOne++)
-    {
-        storageModel->removeRow(nextOne);
-    }
-    storageModel->submitAll();
+    int rowEnd = storageData->rowCount();
+    storageData->removeRows(0,rowEnd);
     reject();
 }
 
 void storageDlg::on_addB_clicked()
 {
-    int rowNum = storageModel->rowCount();
-    int id = rowNum;
-    storageModel->insertRow(rowNum);
-    storageModel->setData(storageModel->index(rowNum,0),id);
-    storageModel->setData(storageModel->index(rowNum,1),0);
+    int rowNum = storageData->rowCount();
+    int columnNum = storageData->columnCount();
+    storageData->insertRow(rowNum);
 
-    storageModel->submitAll();
+    for (int i=0;i<columnNum;i++)
+    {
+        storageData->setItem(rowNum,i,new QStandardItem(QString("")));
+        storageData->item(rowNum,i)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+        switch (columnNum)
+        {
+        case 3:case 5:case 6:
+            storageData->item(rowNum,i)->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+            if (rowNum%2 == 1)
+                storageData->item(rowNum,i)->setBackground(normal1Background);
+            break;
+        default:
+            storageData->item(rowNum,i)->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable);
+            if (rowNum%2 == 1)
+                storageData->item(rowNum,i)->setBackground(normal1Background);
+        }
+    }
 }
 
 void storageDlg::on_deleteB_clicked()
 {
     QItemSelectionModel *thisSelectionM = tabV->selectionModel();
-    QModelIndexList selections = thisSelectionM->selectedIndexes();
-    QMap<int, int> rowMap;
-    foreach (QModelIndex index, selections)
+    if (!thisSelectionM->hasSelection())
     {
-        rowMap.insert(index.row(), 0);
+
     }
-    QMapIterator<int, int> rowMapIterator(rowMap);
-    rowMapIterator.toBack();
-    while (rowMapIterator.hasPrevious())
+    else
     {
-        rowMapIterator.previous();
-        int rowToDel = rowMapIterator.key();
-        storageModel->removeRow(rowToDel);
-        int rowEnd = storageModel->rowCount();
-        for (int nextFix = rowToDel+1;nextFix<rowEnd;nextFix++)
+        QModelIndexList selections = thisSelectionM->selectedIndexes();
+        QMap<int, int> rowMap;
+        foreach (QModelIndex index, selections)
         {
-            QVariant currid = storageModel->data(storageModel->index(nextFix,0));
-            storageModel->setData(storageModel->index(nextFix,0),currid.toInt()-1);
+            rowMap.insert(index.row(), 0);
         }
-        storageModel->submitAll();
+        QMapIterator<int, int> rowMapIterator(rowMap);
+        rowMapIterator.toBack();
+        while (rowMapIterator.hasPrevious())
+        {
+            rowMapIterator.previous();
+            int rowToDel = rowMapIterator.key();
+            storageData->removeRow(rowToDel);
+        }
+        recoveryBackground();
     }
 }
 
 void storageDlg::on_checkB_clicked()
 {
-    storageModel->submitAll();
-    int rowEnd = storageModel->rowCount();
+    int rowEnd = storageData->rowCount();
     if (rowEnd != 0)
     {
         addB->setEnabled(false);
@@ -164,42 +155,14 @@ void storageDlg::on_checkB_clicked()
         hangFlag = false;
         for (int nextOne = 0;nextOne<rowEnd;nextOne++)
         {
-            QSqlRecord thisRecord = storageModel->record(nextOne);
-            QString Okey1 = thisRecord.value(QString("药品名")).toString();
-            QString Okey2 = thisRecord.value(QString("厂商")).toString();
-            QString thisCMD = QString("SELECT * FROM Medicine WHERE 药品名 = '%1' AND 厂商 = '%2'").arg(Okey1).arg(Okey2);
-            QSqlQuery Query = QSqlQuery(mainDB);
-            Query.exec(thisCMD);
-            if (Query.at()!=QSql::BeforeFirstRow || Query.at()!=QSql::AfterLastRow)
-            {
-                Query.first();
-                // 成功匹配，置标志位
-                storageModel->setData(storageModel->index(nextOne,1),1);
-                storageModel->submitAll();
-                // 匹配-规格和单价，并在必要时设置预警
-
-                // 检索空单元,如存在空单元，则设置标志位，并在后期强制阻止提交
-                QVector <int> except = checkRecord(thisRecord);
-                int num = except.count();
-                if (num != 0)
-                    hangFlag = true;
-
-            }
-            else
-            {
-                // 未匹配，置标志位,设置背景色提供预警
-                storageModel->setData(storageModel->index(nextOne,1),2);
-                storageModel->submitAll();
-                // 检索空单元,如存在空单元，则设置标志位，并在后期强制阻止提交
-                QVector <int> except = checkRecord(thisRecord);
-                int num = except.count();
-                if (num != 0)
-                    hangFlag = true;
-            }
+            // 恢复所有背景设定
+            recoveryBackground();
+            // 检查
+            checkOneRecord(nextOne);
         }
         if (hangFlag)
         {
-            QMessageBox::about(NULL,QString("警告"),QString("当前列表存在未填项，请补齐后再检查！"));
+            QMessageBox::about(NULL,QString("警告"),QString("当前列表存在严重问题，请修改确认后再次检查并提交！"));
             addB->setEnabled(true);
             deleteB->setEnabled(true);
             tabV->setEditTriggers(QAbstractItemView::AllEditTriggers);
@@ -222,20 +185,98 @@ void storageDlg::on_checkB_clicked()
     }
 }
 
-QVector <int> storageDlg::checkRecord(const QSqlRecord &record)
+void storageDlg::checkOneRecord(const int idx)
 {
-    QVector <int> except;
-    if (record.value(QString("药品代码")).toString().isEmpty())
-        except<<record.indexOf(QString("药品代码"));
-    if (record.value(QString("药品名")).toString().isEmpty())
-        except<<record.indexOf(QString("药品名"));
-    if (record.value(QString("厂商")).toString().isEmpty())
-        except<<record.indexOf(QString("厂商"));
-    if (record.value(QString("规格")).toString().isEmpty())
-        except<<record.indexOf(QString("规格"));
-    if (record.value(QString("新增数量")).toString().isEmpty())
-        except<<record.indexOf(QString("新增数量"));
-    if (record.value(QString("单价")).toString().isEmpty())
-        except<<record.indexOf(QString("单价"));
-    return except;
+    // 检查是否为空
+    for (int i=0;i<storageData->columnCount();i++)
+    {
+        if (storageData->item(idx,i)->text().isEmpty())
+        {
+            hangFlag = true;
+            storageData->item(idx,i)->setBackground(errorBackground);
+        }
+    }
+    // 检查数据能否正确匹配
+    if (!(storageData->item(idx,0)->text().isEmpty() && storageData->item(idx,1)->text().isEmpty() && storageData->item(idx,2)->text().isEmpty()))
+    {
+        QString Name = storageData->item(idx,1)->text();
+        QString MadeIn = storageData->item(idx,2)->text();
+        int Quant, Stock;
+        mainDB = QSqlDatabase::database(mainName);
+        QString thisCMD = QString("SELECT * FROM Medicine WHERE 药品名 = '%1' AND 厂商 = '%2'").arg(Name).arg(MadeIn);
+        QSqlQuery Query = QSqlQuery(mainDB);
+        Query.exec(thisCMD);
+        QSqlRecord record = Query.record();
+        int hitNum = record.count();
+        if (hitNum!=0)
+        {
+            // 成功匹配条目
+            // ->Stage 1. 检查数据类型
+            if (isDiditStr(storageData->item(idx,4)->text()))
+            {
+                bool ok;
+                Quant = storageData->item(idx,4)->text().toInt(&ok,10);
+                if (!ok)
+                {
+                    hangFlag = true;
+                    storageData->item(idx,4)->setForeground(errorForeground);
+                }
+                else
+                {
+                    // ->Stage 2. 读取数据库中库存数量
+                    Query.first();
+                    Stock = Query.value(QString("库存")).toInt();
+                    // ->Stage 3. 确认入库数量的合理性与合法性
+                    if (Quant<=0 || Quant>Stock)
+                    {
+                        hangFlag = true;
+                        storageData->item(idx,4)->setForeground(errorForeground);
+                    }
+                }
+            }
+            else
+            {
+                hangFlag = true;
+                storageData->item(idx,4)->setForeground(errorForeground);
+            }
+        }
+    }
+}
+
+void storageDlg::recoveryBackground()
+{
+    for (int i=0;i<storageData->rowCount();i++)
+    {
+        if (i%2 == 0)
+        {
+            for (int j=0;j<storageData->columnCount();j++)
+            {
+                storageData->item(i,j)->setBackground(normal0Background);
+            }
+        }
+        else
+        {
+            for (int j=0;j<storageData->columnCount();j++)
+            {
+                storageData->item(i,j)->setBackground(normal1Background);
+            }
+        }
+    }
+}
+
+bool storageDlg::isDiditStr(QString thisString)
+{
+    // QString 转换为 char*
+    QByteArray cmp = thisString.toLatin1();
+    const char *s = cmp.data();
+    while(*s && *s>='0' && *s<='9') s++;
+
+    if (*s)
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
 }

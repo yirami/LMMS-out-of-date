@@ -13,27 +13,39 @@
 #include <QSqlTableModel>
 #include <QSqlQuery>
 
+#include <QStandardItemModel>
+#include <QItemSelectionModel>
+#include <QHeaderView>
+
+#include <QMessageBox>
+
 extern QString mainName;
+extern QStandardItemModel *storageData;
+extern QBrush normalForeground;
+extern QBrush errorForeground;
+extern QBrush warningForeground;
+extern QBrush normal0Background;
+extern QBrush normal1Background;
+extern QBrush errorBackground;
 
 class storageDlg : public QDialog
 {
     Q_OBJECT
 public:
     storageDlg(QWidget *parent=0);
-public:
-    QString stoName = "stodb";
-private:
-    bool hangFlag;
-    QSqlDatabase stoDB;
-    QSqlTableModel *storageModel;
-    QSqlDatabase mainDB;
 private:
     QGroupBox *actionBox;
     QPushButton *addB,*deleteB,*cancelB,*checkB,*submitB;
     QTableView *tabV;
+
+    bool hangFlag;
+    QSqlDatabase mainDB;
 private:
     void setUI();
-    QVector <int> checkRecord(const QSqlRecord &record);
+    void configModel();
+    void recoveryBackground();
+    void checkOneRecord(const int idx);
+    bool isDiditStr(QString thisString);
 private slots:
     void on_addB_clicked();
     void on_deleteB_clicked();

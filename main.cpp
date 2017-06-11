@@ -17,8 +17,15 @@
 QSqlDatabase mainDB;
 QString dbPath = "./MedicineManagement.db";
 QString mainName = "maindb";
+QStandardItemModel *storageData;
 QStandardItemModel *prescribeData;
 
+QBrush normalForeground(QBrush(Qt::black));
+QBrush errorForeground(QBrush(Qt::red));
+QBrush warningForeground(QBrush(Qt::green));
+QBrush normal0Background(QBrush(Qt::white));
+QBrush normal1Background(QBrush(Qt::lightGray));
+QBrush errorBackground(QBrush(Qt::red));
 
 
 
@@ -41,7 +48,7 @@ int main(int argc, char *argv[])
         mainDB.setDatabaseName(dbPath);
         mainDB.open();
         QSqlQuery query = QSqlQuery(mainDB);
-        query.exec("create table Medicine(id int primary key,药品代码 varchar,药品名 varchar,厂商 varchar,规格 varchar,数量 int,单价 int)");
+        query.exec("create table Medicine(id int primary key,药品代码 varchar,药品名 varchar,厂商 varchar,规格 varchar,库存 int,单价 int)");
         query.prepare("insert into Medicine values(?,?,?,?,?,?,?)");
 
         long records=100;

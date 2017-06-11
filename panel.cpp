@@ -2,6 +2,7 @@
 #include "ui_panel.h"
 
 #include <QDebug>
+#include <QBrush>
 
 Panel::Panel(QWidget *parent) :
     QMainWindow(parent),
@@ -10,6 +11,7 @@ Panel::Panel(QWidget *parent) :
     ui->setupUi(this);
 
     initStorageTable();
+    initPrescribeTable();
 
 
 }
@@ -49,14 +51,27 @@ void Panel::on_detailsButton_clicked()
 
 void Panel::initStorageTable()
 {
+    storageData = new QStandardItemModel(0,7);
+    storageData->setHeaderData(0,Qt::Horizontal,QString("药品代码"));
+    storageData->setHeaderData(1,Qt::Horizontal,QString("药品名"));
+    storageData->setHeaderData(2,Qt::Horizontal,QString("厂商"));
+    storageData->setHeaderData(3,Qt::Horizontal,QString("规格"));
+    storageData->setHeaderData(4,Qt::Horizontal,QString("入库量"));
+    storageData->setHeaderData(5,Qt::Horizontal,QString("库存"));
+    storageData->setHeaderData(6,Qt::Horizontal,QString("单价"));
+}
+
+void Panel::initPrescribeTable()
+{
     prescribeData = new QStandardItemModel(0,7);
     prescribeData->setHeaderData(0,Qt::Horizontal,QString("药品代码"));
     prescribeData->setHeaderData(1,Qt::Horizontal,QString("药品名"));
     prescribeData->setHeaderData(2,Qt::Horizontal,QString("厂商"));
     prescribeData->setHeaderData(3,Qt::Horizontal,QString("规格"));
-    prescribeData->setHeaderData(4,Qt::Horizontal,QString("数量"));
+    prescribeData->setHeaderData(4,Qt::Horizontal,QString("出库量"));
     prescribeData->setHeaderData(5,Qt::Horizontal,QString("库存"));
     prescribeData->setHeaderData(6,Qt::Horizontal,QString("单价"));
+
 
     QStandardItem *sName = new QStandardItem(QString("CBS"));
     sName->setFlags(Qt::ItemIsEnabled);
@@ -64,13 +79,13 @@ void Panel::initStorageTable()
     QStandardItem *Name = new QStandardItem(QString("炒白术"));
     Name->setFlags(Qt::ItemIsEnabled);
     Name->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+    Name->setForeground(warningForeground);
     QStandardItem *MadeIn = new QStandardItem(QString("江阴天江药业有限公司"));
     MadeIn->setFlags(Qt::ItemIsEnabled);
     MadeIn->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-    MadeIn->setForeground(QBrush(Qt::red));
+    MadeIn->setForeground(errorForeground);
     QStandardItem *Spec = new QStandardItem(QString("10g"));
     Spec->setFlags(Qt::ItemIsEnabled);
-
     QVariant Q(1);
     QStandardItem *Quant = new QStandardItem(Q.toString());
     Quant->setFlags(Qt::ItemIsEnabled | Qt::ItemIsEditable);

@@ -5,8 +5,6 @@ prescribeDlg::prescribeDlg(QWidget *parent)
 {
     setUI();
     configModel();
-    QSqlDatabase mainDB = QSqlDatabase::database(mainName);
-
     tabV->show();
 
     connect(addB,SIGNAL(clicked()),this,SLOT(on_addB_clicked()));
@@ -64,6 +62,7 @@ void prescribeDlg::setUI()
 
     this->setLayout(mlayout);
     this->setWindowTitle(QString("处方"));
+    submitB->setEnabled(false);
 }
 
 void prescribeDlg::configModel()
@@ -101,10 +100,14 @@ void prescribeDlg::on_addB_clicked()
         switch (columnNum)
         {
         case 3:case 5:case 6:
-            prescribeData->item(rowNum,i)->setFlags(Qt::ItemIsEnabled);
+            prescribeData->item(rowNum,i)->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+            if (rowNum%2 == 1)
+                prescribeData->item(rowNum,i)->setBackground(normal1Background);
             break;
         default:
-            prescribeData->item(rowNum,i)->setFlags(Qt::ItemIsEnabled | Qt::ItemIsEditable);
+            prescribeData->item(rowNum,i)->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable);
+            if (rowNum%2 == 1)
+                prescribeData->item(rowNum,i)->setBackground(normal1Background);
         }
     }
 
@@ -113,19 +116,27 @@ void prescribeDlg::on_addB_clicked()
 void prescribeDlg::on_deleteB_clicked()
 {
     QItemSelectionModel *thisSelectionM = tabV->selectionModel();
-    QModelIndexList selections = thisSelectionM->selectedIndexes();
-    QMap<int, int> rowMap;
-    foreach (QModelIndex index, selections)
+    if (!thisSelectionM->hasSelection())
     {
-        rowMap.insert(index.row(), 0);
+
     }
-    QMapIterator<int, int> rowMapIterator(rowMap);
-    rowMapIterator.toBack();
-    while (rowMapIterator.hasPrevious())
+    else
     {
-        rowMapIterator.previous();
-        int rowToDel = rowMapIterator.key();
-        prescribeData->removeRow(rowToDel);
+        QModelIndexList selections = thisSelectionM->selectedIndexes();
+        QMap<int, int> rowMap;
+        foreach (QModelIndex index, selections)
+        {
+            rowMap.insert(index.row(), 0);
+        }
+        QMapIterator<int, int> rowMapIterator(rowMap);
+        rowMapIterator.toBack();
+        while (rowMapIterator.hasPrevious())
+        {
+            rowMapIterator.previous();
+            int rowToDel = rowMapIterator.key();
+            prescribeData->removeRow(rowToDel);
+        }
+        recoveryBackground();
     }
 }
 
@@ -140,49 +151,14 @@ void prescribeDlg::on_checkB_clicked()
         hangFlag = false;
         for (int nextOne = 0;nextOne<rowEnd;nextOne++)
         {
-            QString sName(prescribeData->item(nextOne,0)->text());
-            QString Name(prescribeData->item(nextOne,1)->text());
-            QString MadeIn(prescribeData->item(nextOne,2)->text());
-            QString Spec(prescribeData->item(nextOne,3)->text());
-            QVariant Quant(prescribeData->item(nextOne,4)->text().toInt());
-            if (!prescribeData->item(nextOne,5))
-                prescribeData->setItem(0,5,new QStandardItem(QString("空的")));
-            if (!prescribeData->item(nextOne,6))
-                prescribeData->setItem(0,6,new QStandardItem(QString("空的")));
-
-            /*QString thisCMD = QString("SELECT * FROM Medicine WHERE 药品名 = '%1' AND 厂商 = '%2'").arg(Okey1).arg(Okey2);
-            QSqlQuery Query = QSqlQuery(mainDB);
-            Query.exec(thisCMD);
-            if (Query.at()!=QSql::BeforeFirstRow || Query.at()!=QSql::AfterLastRow)
-            {
-                Query.first();
-                // 成功匹配，置标志位
-                storageModel->setData(storageModel->index(nextOne,1),1);
-                storageModel->submitAll();
-                // 匹配-规格和单价，并在必要时设置预警
-
-                // 检索空单元,如存在空单元，则设置标志位，并在后期强制阻止提交
-                QVector <int> except = checkRecord(thisRecord);
-                int num = except.count();
-                if (num != 0)
-                    hangFlag = true;
-
-            }
-            else
-            {
-                // 未匹配，置标志位,设置背景色提供预警
-                storageModel->setData(storageModel->index(nextOne,1),2);
-                storageModel->submitAll();
-                // 检索空单元,如存在空单元，则设置标志位，并在后期强制阻止提交
-                QVector <int> except = checkRecord(thisRecord);
-                int num = except.count();
-                if (num != 0)
-                    hangFlag = true;
-            }*/
+            // 恢复所有背景设定
+            recoveryBackground();
+            // 检查
+            checkOneRecord(nextOne);
         }
-        /*if (hangFlag)
+        if (hangFlag)
         {
-            QMessageBox::about(NULL,QString("警告"),QString("当前列表存在未填项，请补齐后再检查！"));
+            QMessageBox::about(NULL,QString("警告"),QString("当前列表存在严重问题，请修改确认后再次检查并提交！"));
             addB->setEnabled(true);
             deleteB->setEnabled(true);
             tabV->setEditTriggers(QAbstractItemView::AllEditTriggers);
@@ -201,24 +177,102 @@ void prescribeDlg::on_checkB_clicked()
                 tabV->setEditTriggers(QAbstractItemView::AllEditTriggers);
                 break;
             }
-        }*/
+        }
     }
 }
 
-/*QVector <int> prescribeDlg::checkRecord(const QSqlRecord &record)
+void prescribeDlg::checkOneRecord(const int idx)
 {
-    QVector <int> except;
-    if (record.value(QString("药品代码")).toString().isEmpty())
-        except<<record.indexOf(QString("药品代码"));
-    if (record.value(QString("药品名")).toString().isEmpty())
-        except<<record.indexOf(QString("药品名"));
-    if (record.value(QString("厂商")).toString().isEmpty())
-        except<<record.indexOf(QString("厂商"));
-    if (record.value(QString("规格")).toString().isEmpty())
-        except<<record.indexOf(QString("规格"));
-    if (record.value(QString("新增数量")).toString().isEmpty())
-        except<<record.indexOf(QString("新增数量"));
-    if (record.value(QString("单价")).toString().isEmpty())
-        except<<record.indexOf(QString("单价"));
-    return except;
-}*/
+    // 检查是否为空
+    for (int i=0;i<prescribeData->columnCount();i++)
+    {
+        if (prescribeData->item(idx,i)->text().isEmpty())
+        {
+            hangFlag = true;
+            prescribeData->item(idx,i)->setBackground(errorBackground);
+        }
+    }
+    // 检查数据能否正确匹配
+    if (!(prescribeData->item(idx,0)->text().isEmpty() && prescribeData->item(idx,1)->text().isEmpty() && prescribeData->item(idx,2)->text().isEmpty()))
+    {
+        QString Name = prescribeData->item(idx,1)->text();
+        QString MadeIn = prescribeData->item(idx,2)->text();
+        int Quant, Stock;
+        mainDB = QSqlDatabase::database(mainName);
+        QString thisCMD = QString("SELECT * FROM Medicine WHERE 药品名 = '%1' AND 厂商 = '%2'").arg(Name).arg(MadeIn);
+        QSqlQuery Query = QSqlQuery(mainDB);
+        Query.exec(thisCMD);
+        QSqlRecord record = Query.record();
+        int hitNum = record.count();
+        if (hitNum!=0)
+        {
+            // 成功匹配条目
+            // ->Stage 1. 检查数据类型
+            if (isDiditStr(prescribeData->item(idx,4)->text()))
+            {
+                bool ok;
+                Quant = prescribeData->item(idx,4)->text().toInt(&ok,10);
+                if (!ok)
+                {
+                    hangFlag = true;
+                    prescribeData->item(idx,4)->setForeground(errorForeground);
+                }
+                else
+                {
+                    // ->Stage 2. 读取数据库中库存数量
+                    Query.first();
+                    Stock = Query.value(QString("库存")).toInt();
+                    // ->Stage 3. 确认出库数量的合法性
+                    if (Quant<=0 || Quant>Stock)
+                    {
+                        hangFlag = true;
+                        prescribeData->item(idx,4)->setForeground(errorForeground);
+                    }
+                }
+            }
+            else
+            {
+                hangFlag = true;
+                prescribeData->item(idx,4)->setForeground(errorForeground);
+            }
+        }
+    }
+}
+
+void prescribeDlg::recoveryBackground()
+{
+    for (int i=0;i<prescribeData->rowCount();i++)
+    {
+        if (i%2 == 0)
+        {
+            for (int j=0;j<prescribeData->columnCount();j++)
+            {
+                prescribeData->item(i,j)->setBackground(normal0Background);
+            }
+        }
+        else
+        {
+            for (int j=0;j<prescribeData->columnCount();j++)
+            {
+                prescribeData->item(i,j)->setBackground(normal1Background);
+            }
+        }
+    }
+}
+
+bool prescribeDlg::isDiditStr(QString thisString)
+{
+    // QString 转换为 char*
+    QByteArray cmp = thisString.toLatin1();
+    const char *s = cmp.data();
+    while(*s && *s>='0' && *s<='9') s++;
+
+    if (*s)
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}

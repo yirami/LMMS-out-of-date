@@ -29,12 +29,14 @@ SOURCES += main.cpp\
     storagedlg.cpp \
     prescribedlg.cpp \
     detailsdlg.cpp \
-    maintaindlg.cpp
+    maintaindlg.cpp \
+    ceditdlg.cpp
 
 HEADERS  += panel.h \
     storagedlg.h \
     prescribedlg.h \
     detailsdlg.h \
-    maintaindlg.h
+    maintaindlg.h \
+    ceditdlg.h
 
 FORMS    += panel.ui

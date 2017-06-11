@@ -15,7 +15,10 @@
 #include "maintaindlg.h"
 #include "detailsdlg.h"
 
+extern QStandardItemModel *storageData;
 extern QStandardItemModel *prescribeData;
+extern QBrush errorForeground;
+extern QBrush warningForeground;
 
 namespace Ui {
 class Panel;
@@ -39,6 +42,7 @@ private slots:
     void on_detailsButton_clicked();
 private:
     void initStorageTable();
+    void initPrescribeTable();
 private:
     Ui::Panel *ui;
 };

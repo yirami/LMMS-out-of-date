@@ -11,12 +11,22 @@
 
 #include <QSqlDatabase>
 #include <QSqlQuery>
+#include <QSqlRecord>
 
 #include <QStandardItemModel>
+#include <QItemSelectionModel>
 #include <QHeaderView>
+
+#include <QMessageBox>
 
 extern QString mainName;
 extern QStandardItemModel *prescribeData;
+extern QBrush normalForeground;
+extern QBrush errorForeground;
+extern QBrush warningForeground;
+extern QBrush normal0Background;
+extern QBrush normal1Background;
+extern QBrush errorBackground;
 
 class prescribeDlg : public QDialog
 {
@@ -24,14 +34,18 @@ class prescribeDlg : public QDialog
 public:
     prescribeDlg(QWidget *parent=0);
 private:
-    bool hangFlag;
     QGroupBox *actionBox;
     QPushButton *addB,*deleteB,*cancelB,*checkB,*submitB;
+
     QTableView *tabV;
+    bool hangFlag;
     QSqlDatabase mainDB;
 private:
     void setUI();
     void configModel();
+    void recoveryBackground();
+    void checkOneRecord(const int idx);
+    bool isDiditStr(QString thisString);
 private slots:
     void on_cancelB_clicked();
     void on_addB_clicked();
