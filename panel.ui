@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Panel</class>
+ <widget class="QMainWindow" name="Panel">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>640</width>
+    <height>425</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>医药管理系统</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <widget class="QGroupBox" name="modifyBox">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>340</width>
+      <height>80</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>更改</string>
+    </property>
+    <widget class="QPushButton" name="storageButton">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>30</y>
+       <width>80</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>微软雅黑</family>
+       <pointsize>16</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>入库</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="prescribeButton">
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>30</y>
+       <width>80</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>微软雅黑</family>
+       <pointsize>16</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>处方</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="maintainButton">
+     <property name="geometry">
+      <rect>
+       <x>230</x>
+       <y>30</y>
+       <width>80</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>微软雅黑</family>
+       <pointsize>16</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>维护</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="queryBox">
+    <property name="geometry">
+     <rect>
+      <x>390</x>
+      <y>10</y>
+      <width>230</width>
+      <height>80</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>查询</string>
+    </property>
+    <widget class="QPushButton" name="detailButton">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>30</y>
+       <width>80</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>微软雅黑</family>
+       <pointsize>16</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>清单</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="logButton">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>30</y>
+       <width>80</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>微软雅黑</family>
+       <pointsize>16</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>日志</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="guideBox">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>110</y>
+      <width>340</width>
+      <height>270</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>指南</string>
+    </property>
+    <widget class="QTextBrowser" name="guideText">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>321</width>
+       <height>241</height>
+      </rect>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <property name="html">
+      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'SimSun'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;入库 &lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;[&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; color:#55aaff;&quot;&gt;单击&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; color:#55aaff;&quot;&gt;添加条目&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; color:#55aaff;&quot;&gt;检查&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; color:#55aaff;&quot;&gt;提交&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;]：&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;  --&amp;gt; 新药入库&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;  --&amp;gt; 存药增量&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;处方 &lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;[&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; color:#55aaff;&quot;&gt;单击&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; color:#55aaff;&quot;&gt;添加条目&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; color:#55aaff;&quot;&gt;检查&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; color:#55aaff;&quot;&gt;提交&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;]：&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;  --&amp;gt; 药品出库&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;维护 &lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;[&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; color:#55aaff;&quot;&gt;单击&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; color:#55aaff;&quot;&gt;条件/所有&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; color:#55aaff;&quot;&gt;维护&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; color:#55aaff;&quot;&gt;(检查)提交&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;]：&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;  --&amp;gt; 删除药品&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;  --&amp;gt; 修改数据&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;-------------------------------------------&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;清单 &lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;[&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; color:#55aaff;&quot;&gt;单击&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; color:#55aaff;&quot;&gt;条件/所有&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; color:#55aaff;&quot;&gt;打印&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;]：&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;  --&amp;gt; 导出（所有/指定）药品清单-打印&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;日志 &lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;[&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; color:#55aaff;&quot;&gt;单击&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; color:#55aaff;&quot;&gt;日志&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; color:#55aaff;&quot;&gt;打印&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;]&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;：&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;  --&amp;gt; 导出操作明细&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="historyBox">
+    <property name="geometry">
+     <rect>
+      <x>390</x>
+      <y>110</y>
+      <width>230</width>
+      <height>270</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>历史</string>
+    </property>
+    <widget class="QTableWidget" name="historyTable">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>211</width>
+       <height>241</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
+   <widget class="Line" name="line_2">
+    <property name="geometry">
+     <rect>
+      <x>360</x>
+      <y>20</y>
+      <width>20</width>
+      <height>351</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>
