@@ -2,23 +2,12 @@
 #define PANEL_H
 
 #include <QMainWindow>
-#include <QSqlDatabase>
-#include <QSqlQuery>
-#include <QSqlError>
-#include <QSqlTableModel>
-
 #include <QStandardItemModel>
-
-
-#include "storagedlg.h"
-#include "prescribedlg.h"
-#include "maintaindlg.h"
-#include "detailsdlg.h"
-
-extern QStandardItemModel *storageData;
-extern QStandardItemModel *prescribeData;
-extern QBrush errorForeground;
-extern QBrush warningForeground;
+#include "base/cdatabasepackage.h"
+#include "cstoragedlg.h"
+#include "cprescribedlg.h"
+#include "cmaintaindlg.h"
+#include "cdetaildlg.h"
 
 namespace Ui {
 class Panel;
@@ -27,22 +16,21 @@ class Panel;
 class Panel : public QMainWindow
 {
     Q_OBJECT
-
-
+public:
+    QString dbPath;
+    QString dbConnectName;
+    CDatabasePackage *dbPackage;
 public:
     explicit Panel(QWidget *parent = 0);
     ~Panel();
 private slots:
     void on_storageButton_clicked();
-
     void on_prescribeButton_clicked();
-
     void on_maintainButton_clicked();
-
-    void on_detailsButton_clicked();
+    void on_detailButton_clicked();
 private:
-    void initStorageTable();
-    void initPrescribeTable();
+    QStandardItemModel *initStorageTable();
+    QStandardItemModel *initPrescribeTable();
 private:
     Ui::Panel *ui;
 };

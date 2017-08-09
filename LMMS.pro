@@ -1,6 +1,6 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2017-05-06T10:15:38
+# Project created by QtCreator 2017-08-08T07:29:06
 #
 #-------------------------------------------------
 
@@ -26,17 +26,29 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += main.cpp\
         panel.cpp \
-    storagedlg.cpp \
-    prescribedlg.cpp \
-    detailsdlg.cpp \
-    maintaindlg.cpp \
-    ceditdlg.cpp
+    base/cbaseeditdlg.cpp \
+    base/cdatabasepackage.cpp \
+    base/cdirecteditdlg.cpp \
+    base/cspindelegate.cpp \
+    cdetaildlg.cpp \
+    cmaintaindlg.cpp \
+    cstoragedlg.cpp \
+    base/ccombodelegate.cpp \
+    base/cdoublespindelegate.cpp \
+    base/clineeditdelegate.cpp \
+    cprescribedlg.cpp
 
 HEADERS  += panel.h \
-    storagedlg.h \
-    prescribedlg.h \
-    detailsdlg.h \
-    maintaindlg.h \
-    ceditdlg.h
+    base/cbaseeditdlg.h \
+    base/cdatabasepackage.h \
+    base/cdirecteditdlg.h \
+    base/cspindelegate.h \
+    cdetaildlg.h \
+    cmaintaindlg.h \
+    base/ccombodelegate.h \
+    base/cdoublespindelegate.h \
+    base/clineeditdelegate.h \
+    cstoragedlg.h \
+    cprescribedlg.h
 
 FORMS    += panel.ui
