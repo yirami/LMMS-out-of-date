@@ -3,6 +3,7 @@
 CMaintainDlg::CMaintainDlg(CDatabasePackage *dbPackage):CDirectEditDlg(dbPackage)
 {
     setUI();
+    setDelegate();
     connect(deleteB,SIGNAL(clicked()),this,SLOT(on_deleteB_clicked()));
     connect(submitB,SIGNAL(clicked()),this,SLOT(on_submitB_clicked()));
 
@@ -97,23 +98,28 @@ void CMaintainDlg::on_submitB_clicked()
 {
     if (dataModel->rowCount() != 0)
     {
-        bool formatOk = true;
-        for (int nextOne = 0;nextOne<dataModel->rowCount();nextOne++)
-            formatOk = checkOneRecordFormat(nextOne) && formatOk;
-        if (!formatOk)
-            QMessageBox::critical(NULL,QString("警告"),QString("当前列表存在严重问题，请修改确认后再次检查并提交！"));
-        else
+        switch(QMessageBox::information(this,QString("确认"),QString("还需提交修改吗？Yes：提交；No：再瞅瞅！"),QMessageBox::Yes|QMessageBox::No,QMessageBox::No))
         {
-            switch(QMessageBox::information(this,QString("确认"),QString("还需提交修改吗？Yes：提交；No：再瞅瞅！"),QMessageBox::Yes|QMessageBox::No,QMessageBox::No))
-            {
-            case QMessageBox::Yes:
-                if (!dataModel->submitAll())
-                    qDebug() << dataModel->lastError();
-                break;
-            default:
-                break;
-            }
+        case QMessageBox::Yes:
+            if (!dataModel->submitAll())
+                qDebug() << dataModel->lastError();
+            break;
+        default:
+            break;
         }
     }
     reject();
+}
+
+void CMaintainDlg::setDelegate()
+{
+    nameDelegate->itemList = nameList;
+    madeDelegate->itemList = madeList;
+    tabV->setItemDelegateForColumn(0,agentDelegate);
+    tabV->setItemDelegateForColumn(1,nameDelegate);
+    tabV->setItemDelegateForColumn(2,madeDelegate);
+    tabV->setItemDelegateForColumn(3,specDelegate);
+    tabV->setItemDelegateForColumn(4,ioDelegate);
+    tabV->setItemDelegateForColumn(5,stockDelegate);
+    tabV->setItemDelegateForColumn(6,priceDelegate);
 }

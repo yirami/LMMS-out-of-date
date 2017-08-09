@@ -18,6 +18,7 @@ private:
     QPushButton *deleteB, *submitB;
 private:
     void setUI();
+    void setDelegate();
 private slots:
     void on_deleteB_clicked();
     void on_submitB_clicked();

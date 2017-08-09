@@ -15,8 +15,11 @@
 // Database
 #include <QSqlDatabase>
 #include <QSqlTableModel>
-
+// base
 #include "base/cdatabasepackage.h"
+#include "base/clineeditdelegate.h"
+#include "base/cspindelegate.h"
+#include "base/cdoublespindelegate.h"
 
 class CDirectEditDlg : public QDialog
 {
@@ -24,6 +27,18 @@ class CDirectEditDlg : public QDialog
 public:
     QSqlTableModel *dataModel;
     CDatabasePackage *mainPackage;
+    static QRegExp allCapitalRE;
+    static QRegExp allChineseRE;
+    static QRegExp beginDigitRE;
+    static QRegExp nnintegerRE;
+    static QRegExp nnfloatRE;
+    static CLineEditDelegate *agentDelegate;
+    static CLineEditDelegate *nameDelegate;
+    static CLineEditDelegate *madeDelegate;
+    static CLineEditDelegate *specDelegate;
+    static CSpinDelegate *ioDelegate;
+    static CSpinDelegate *stockDelegate;
+    static CDoubleSpinDelegate *priceDelegate;
 public:
     CDirectEditDlg(CDatabasePackage *dbPackage, QWidget *parent=0);
 protected:
@@ -34,13 +49,9 @@ protected:
     QTableView *tabV;
 protected:
     QSqlDatabase database;
-    QRegExp allCapitalRE;
-    QRegExp allChineseRE;
-    QRegExp beginDigitRE;
-    QRegExp nnintegerRE;
-    QRegExp nnfloatRE;
     QPalette normalText;
     QPalette errorText;
+    QStringList nameList, madeList;
 protected:
     void showAllRecords();
     bool parseOne(QLineEdit *edit, QRegExp rx, int level=0);
@@ -54,6 +65,7 @@ protected slots:
 private:
     void setUI();
     void configModel();
+    void setAssistant();
 };
 
 #endif // CDIRECTEDITDLG_H

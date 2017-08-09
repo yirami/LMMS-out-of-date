@@ -1,4 +1,17 @@
 #include "cdirecteditdlg.h"
+QRegExp CDirectEditDlg::allCapitalRE("^[A-Z]+$");
+QRegExp CDirectEditDlg::allChineseRE("^[\u4e00-\u9fa5]+$");
+QRegExp CDirectEditDlg::beginDigitRE("^[0-9]*[1-9][0-9]*[A-Za-z\u4e00-\u9fa5]+$");
+QRegExp CDirectEditDlg::nnintegerRE = QRegExp("^\\d+$");
+QRegExp CDirectEditDlg::nnfloatRE = QRegExp("^\\d+(\\.\\d+)?$");
+CLineEditDelegate *CDirectEditDlg::agentDelegate = new CLineEditDelegate(CDirectEditDlg::allCapitalRE,true);
+CLineEditDelegate *CDirectEditDlg::nameDelegate = new CLineEditDelegate(CDirectEditDlg::allChineseRE,true);
+CLineEditDelegate *CDirectEditDlg::madeDelegate = new CLineEditDelegate(CDirectEditDlg::allChineseRE,true);
+CLineEditDelegate *CDirectEditDlg::specDelegate = new CLineEditDelegate(CDirectEditDlg::beginDigitRE);
+CSpinDelegate *CDirectEditDlg::ioDelegate = new CSpinDelegate;
+CSpinDelegate *CDirectEditDlg::stockDelegate = new CSpinDelegate;
+CDoubleSpinDelegate *CDirectEditDlg::priceDelegate = new CDoubleSpinDelegate;
+
 
 CDirectEditDlg::CDirectEditDlg(CDatabasePackage *dbPackage, QWidget *parent):QDialog(parent), mainPackage(dbPackage)
 {
@@ -9,13 +22,8 @@ CDirectEditDlg::CDirectEditDlg(CDatabasePackage *dbPackage, QWidget *parent):QDi
     dataModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
 
     setUI();
+    setAssistant();
     showAllRecords();
-
-    allCapitalRE = QRegExp("^[A-Z]+$");
-    allChineseRE = QRegExp("^[\u4e00-\u9fa5]+$");
-    beginDigitRE = QRegExp("^[0-9]*[1-9][0-9]*[A-Za-z\u4e00-\u9fa5]+$");
-    nnintegerRE = QRegExp("^\\d+$");
-    nnfloatRE = QRegExp("^\\d+(\\.\\d+)?$");
 
     normalText.setBrush(QPalette::Text, QBrush(Qt::black));
     errorText.setBrush(QPalette::Text, QBrush(Qt::red));
@@ -269,18 +277,28 @@ void CDirectEditDlg::recoveryTextColor()
     priceHEdit->setPalette(CDirectEditDlg::normalText);
 }
 
-bool CDirectEditDlg::checkOneRecordFormat(const int idx)
+void CDirectEditDlg::setAssistant()
 {
-    bool formatOK = true;
-    QVector<QRegExp> RegExps;
-    RegExps<<nnintegerRE<<allCapitalRE<<allChineseRE<<allChineseRE<<beginDigitRE<<nnintegerRE<<nnfloatRE;
-    for (int i=0;i<dataModel->columnCount();i++)
-    {
-        QString str = dataModel->record(idx).value(i).toString();
-        if (!RegExps.at(i).exactMatch(str))
-        {
-            formatOK = false;
-        }
-    }
-    return formatOK;
+    QRegExpValidator *vali1 = new QRegExpValidator(allChineseRE,this);
+    QIntValidator *vali2 = new QIntValidator(0,10240,this);
+    QDoubleValidator *vali3 = new QDoubleValidator(0,100,4,this);
+    nameEdit->setValidator(vali1);
+    madeEdit->setValidator(vali1);
+    stockLEdit->setValidator(vali2);
+    stockHEdit->setValidator(vali2);
+    priceLEdit->setValidator(vali3);
+    priceHEdit->setValidator(vali3);
+
+    agentDelegate->itemList =  mainPackage->getAllAgentName().toList();
+    QVector<int> keys = mainPackage->getAllKey();
+    QVector<QVariant> nameVector = mainPackage->getItemsByKey(keys,QString("药品名"));
+    for (QVariant &name:nameVector)
+        nameList<<name.toString();
+    QVector<QVariant> madeVector = mainPackage->getItemsByKey(keys,QString("厂商"));
+    for (QVariant &made:madeVector)
+        madeList<<made.toString();
+    QCompleter *nameCompleter = new QCompleter(nameList,this);
+    QCompleter *madeCompleter = new QCompleter(madeList,this);
+    nameEdit->setCompleter(nameCompleter);
+    madeEdit->setCompleter(madeCompleter);
 }
