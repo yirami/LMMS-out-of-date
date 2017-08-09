@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QStandardItemModel>
+#include <QLabel>
 #include "base/cdatabasepackage.h"
 #include "cstoragedlg.h"
 #include "cprescribedlg.h"
@@ -33,6 +34,8 @@ private:
     QStandardItemModel *initPrescribeTable();
 private:
     Ui::Panel *ui;
+private:
+    void setCopyRight();
 };
 
 #endif // PANEL_H

@@ -1,6 +1,6 @@
 #include "cdetaildlg.h"
 
-CDetailDlg::CDetailDlg(CDatabasePackage *dbPackage):CDirectEditDlg(dbPackage)
+CDetailDlg::CDetailDlg(CDatabasePackage *dbPackage):CDirectEditDlg(dbPackage),textPrinter(QPrinter::HighResolution)
 {
     setUI();
 
@@ -57,5 +57,103 @@ void CDetailDlg::setUI()
 
 void CDetailDlg::on_printB_clicked()
 {
+    QStringList textList = prepareTextList();
+    printConfig();
+    Q_ASSERT(textPainter.begin(&textPrinter));
+    QPointF start(20,400);
+    writeText(start,textList);
+    textPainter.end();
+    reject();
+}
 
+void CDetailDlg::printConfig()
+{
+    outFileName = QFileDialog::getSaveFileName(this,"导出至PDF",QString(),"*.pdf");
+    if ( !outFileName.isEmpty())
+    {
+        if ( QFileInfo(outFileName).suffix().isEmpty())
+            outFileName.append(".pdf");
+        textPrinter.setOutputFormat(QPrinter::PdfFormat);
+        textPrinter.setPageSize(QPrinter::A4);
+        textPrinter.setOutputFileName(outFileName);
+    }
+}
+
+QString CDetailDlg::makeTime()
+{
+    QDateTime time = QDateTime::currentDateTime();
+    QString format("yyyy-MM-dd hh:mm:ss");
+    QString thisTime = time.toString(format);
+    return thisTime;
+}
+
+QString CDetailDlg::formatOneRecord(int sel)
+{
+    QString agentName = dataModel->data(dataModel->index(sel,1)).toString();
+    QString name = dataModel->data(dataModel->index(sel,2)).toString();
+    QString nameT = alighChinese(name,20);
+    QString madeIn = dataModel->data(dataModel->index(sel,3)).toString();
+    QString madeInT = alighChinese(madeIn,30);
+    QString spec = dataModel->data(dataModel->index(sel,4)).toString();
+    int stock = dataModel->data(dataModel->index(sel,5)).toInt();
+    float price = dataModel->data(dataModel->index(sel,6)).toFloat();
+    QString recordFormat(" -> %1 | %2 | %3 | %4 | %5 | %6");
+    QString outRecord(recordFormat.arg(agentName,10).arg(nameT).arg(madeInT).arg(spec,5).arg(stock,5).arg(price,8,'f',4));
+    return outRecord;
+}
+
+QStringList CDetailDlg::prepareTextList()
+{
+    QStringList textList;
+    QItemSelectionModel *thisSelectionM = tabV->selectionModel();
+    if (thisSelectionM->hasSelection())
+    {
+        QModelIndexList selections = thisSelectionM->selectedIndexes();
+        QMap<int, int> rowMap;
+        foreach (QModelIndex index, selections)
+            rowMap.insert(index.row(), 0);
+        QMapIterator<int, int> rowMapIterator(rowMap);
+        rowMapIterator.toFront();
+        while (rowMapIterator.hasNext())
+        {
+            rowMapIterator.next();
+            int row = rowMapIterator.key();
+            textList<<formatOneRecord(row);
+        }
+        thisSelectionM->clearSelection();
+    }
+    else
+    {
+        if (dataModel->rowCount()!=0)
+        {
+            for (int idx=0;idx<dataModel->rowCount();idx++)
+                textList<<formatOneRecord(idx);
+        }
+    }
+    return textList;
+}
+
+void CDetailDlg::writeText(QPointF &startP, QStringList &textList)
+{
+    QPointF deltaP(0,200);
+    startP += deltaP;
+    startP += deltaP;
+    textPainter.drawText(startP,QString("打印时间 @ ").append(makeTime()));
+    foreach (QString text, textList)
+    {
+        textPainter.drawText(startP,text);
+        startP += deltaP;
+    }
+}
+
+QString CDetailDlg::alighChinese(const QString &raw, int fieldWidth)
+{
+    QString out;
+    if (fieldWidth==0)
+        out = raw;
+    else if(fieldWidth>0)
+        out = QString("%1%2").arg(" ",fieldWidth-2*raw.length()).arg(raw);
+    else
+        out = QString("%1%2").arg(raw).arg(" ",-fieldWidth-2*raw.length());
+    return out;
 }
