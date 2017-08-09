@@ -9,7 +9,7 @@ Panel::Panel(QWidget *parent) :
     ui(new Ui::Panel)
 {
     ui->setupUi(this);
-
+    setCopyRight();
     dbPath = "./MedicineManagement.db";
     dbConnectName = "main";
     dbPackage = new CDatabasePackage(dbPath, dbConnectName);
@@ -46,4 +46,16 @@ void Panel::on_detailButton_clicked()
 {
     CDetailDlg detDlg(dbPackage);
     detDlg.exec();
+}
+
+void Panel::setCopyRight()
+{
+    this->setFixedSize(631,424);
+    ui->statusBar->setStyleSheet(QString("QStatusBar::item{border:0px}"));
+    ui->statusBar->setSizeGripEnabled(false);
+    QLabel *right = new QLabel(QString("Copyright 2017 Yirami. All rights reserved."),this);
+    QFont copyFont("Times", 9, QFont::Normal);
+    right->setFont(copyFont);
+    ui->statusBar->addPermanentWidget(right);
+    ui->statusBar->showMessage(QString("药品管理系统启动中..."), 3000);
 }
