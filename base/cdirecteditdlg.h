@@ -12,6 +12,7 @@
 #include <QSpacerItem>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QProgressBar>
 // Database
 #include <QSqlDatabase>
 #include <QSqlTableModel>
@@ -42,11 +43,12 @@ public:
 public:
     CDirectEditDlg(CDatabasePackage *dbPackage, QWidget *parent=0);
 protected:
-    QGroupBox *queryBox, *nameBox, *madeBox, *stockBox, *priceBox;
-    QLabel *nameLable, *madeLable, *stockLable, *stockDotLable, *priceLable, *priceDotLable;
+    QGroupBox *queryBox, *nameBox, *madeBox, *stockBox, *priceBox, *mainBox, *progressBox;
+    QLabel *nameLable, *madeLable, *stockLable, *stockDotLable, *priceLable, *priceDotLable, *progressInfo;
     QLineEdit *nameEdit, *madeEdit, *stockLEdit, *stockHEdit, *priceLEdit, *priceHEdit;
-    QPushButton *allB;
+    QPushButton *clearB;
     QTableView *tabV;
+    QProgressBar *progressShow;
 protected:
     QSqlDatabase database;
     QPalette normalText;
@@ -56,11 +58,10 @@ protected:
     void showAllRecords();
     bool parseOne(QLineEdit *edit, QRegExp rx, int level=0);
     QString queryParse();
-    void clearAllEdit();
     void recoveryTextColor();
     bool checkOneRecordFormat(const int idx);
 protected slots:
-    void on_allB_clicked();
+    void on_clearB_clicked();
     void queryChanged();
 private:
     void setUI();

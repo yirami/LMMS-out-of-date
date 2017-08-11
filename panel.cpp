@@ -57,5 +57,5 @@ void Panel::setCopyRight()
     QFont copyFont("Times", 9, QFont::Normal);
     right->setFont(copyFont);
     ui->statusBar->addPermanentWidget(right);
-    ui->statusBar->showMessage(QString("药品管理系统启动中..."), 3000);
+    ui->statusBar->showMessage(QString("药品管理系统启动中..."), 1000);
 }

@@ -70,11 +70,35 @@ void CBaseEditDlg::setUI()
 
     actionBox->setLayout(actboxlayout);
 
+    mainBox = new QGroupBox(this);
+    mainBox->setStyleSheet("QGroupBox{border:none;}");
     QHBoxLayout *mlayout = new QHBoxLayout(this);
     mlayout->addWidget(tabV);
     mlayout->addWidget(actionBox);
+    mainBox->setLayout(mlayout);
 
-    this->setLayout(mlayout);
+    progressBox = new QGroupBox(this);
+    progressBox->setFixedSize(1000,30);
+    progressBox->setStyleSheet("QGroupBox{border:none;}");
+    progressInfo = new QLabel(this);
+    progressInfo->setFixedHeight(20);
+    progressInfo->setFixedWidth(200);
+    progressInfo->setText(QString(""));
+    progressShow = new QProgressBar(this);
+    progressShow->setFixedHeight(20);
+    progressShow->setFixedWidth(750);
+    progressShow->setHidden(true);
+    QHBoxLayout *playout = new QHBoxLayout(this);
+    playout->addWidget(progressInfo);
+    playout->addWidget(progressShow);
+    progressBox->setLayout(playout);
+
+
+    QVBoxLayout *wlayout = new QVBoxLayout(this);
+    wlayout->addWidget(mainBox);
+    wlayout->addWidget(progressBox);
+
+    this->setLayout(wlayout);
 }
 
 void CBaseEditDlg::configModel()
@@ -168,8 +192,13 @@ void CBaseEditDlg::on_checkB_clicked()
             switch(QMessageBox::information(this,QString("确认"),QString("确定提交吗？Yes：准备提交；No：再瞅瞅！"),QMessageBox::Yes|QMessageBox::No,QMessageBox::No))
             {
             case QMessageBox::Yes:
+            {
+                progressInfo->setText(QString("正在提交至数据库..."));
                 submitData();
-                reject();
+                QTime timer = QTime::currentTime().addMSecs(2000);
+                while(QTime::currentTime()<timer);
+                accept();
+            }
             default:
                 addB->setEnabled(true);
                 deleteB->setEnabled(true);
@@ -206,6 +235,176 @@ void CBaseEditDlg::refreshList(QModelIndex TL)
 {
     qDebug()<<QString("信号发生行：")<<TL.row();
     qDebug("This indicates that the virtual function is called abnormally");
+}
+
+void CBaseEditDlg::refreshAllForIn()
+{
+    agentLineDelegate->itemList =  mainPackage->getAllAgentName().toSet().toList();
+    nameLineDelegate->itemList = mainPackage->getAllName().toSet().toList();
+    madeLineDelegate->itemList = mainPackage->getAllMadeIn().toSet().toList();
+}
+
+void CBaseEditDlg::refreshAllForOut()
+{
+    agentLineDelegate->itemList =  mainPackage->getAllAgentName().toSet().toList();
+    nameComboDelegate->itemList = mainPackage->getAllName().toSet().toList();
+    madeComboDelegate->itemList = mainPackage->getAllMadeIn().toSet().toList();
+}
+
+QString CBaseEditDlg::parsePrecisely(QString *agentName, QString *name, QString *madeIn)
+{
+    QString queryStatement;
+    QVector<QString> cache;
+    if (!agentName->isEmpty())
+        cache.append(QString("药品代码 = '%1'").arg(*agentName));
+    if (!name->isEmpty())
+        cache.append(QString("药品名 = '%1'").arg(*name));
+    if (!madeIn->isEmpty())
+        cache.append(QString("厂商 = '%1'").arg(*madeIn));
+    if (!cache.isEmpty())
+    {
+        queryStatement += cache.first();
+        cache.removeFirst();
+        while(!cache.isEmpty())
+        {
+            queryStatement += QString(" AND ");
+            queryStatement += cache.first();
+            cache.removeFirst();
+        }
+    }
+    return queryStatement;
+}
+
+void CBaseEditDlg::parseStrictlyForIn(QString *agentName, QString *name, QString *madeIn)
+{
+    bool freshA = true, freshN = true, freshM = true;
+    QVector<int> allKeys = mainPackage->getAllKey();
+    if (allKeys.count()!=0)
+    {
+        QVector<int> filtKeys;
+        if (!agentName->isEmpty() && allKeys.count()!=0)
+        {
+            filtKeys = mainPackage->filtKeyByField(allKeys, QString("药品代码"), *agentName);
+            if (filtKeys.count()!=0)
+            {
+                allKeys = filtKeys;
+                freshA = false;
+            }
+        }
+        if (!name->isEmpty() && allKeys.count()!=0)
+        {
+            filtKeys = mainPackage->filtKeyByField(allKeys, QString("药品名"), *name);
+            if (filtKeys.count()!=0)
+            {
+                allKeys = filtKeys;
+                freshN = false;
+            }
+        }
+        if (!madeIn->isEmpty() && allKeys.count()!=0)
+        {
+            filtKeys = mainPackage->filtKeyByField(allKeys, QString("厂商"), *madeIn);
+            if (filtKeys.count()!=0)
+            {
+                allKeys = filtKeys;
+                freshM = false;
+            }
+        }
+        if (freshA && freshN && freshM)
+            refreshAllForIn();
+        else
+        {
+            if (freshA)
+            {
+                QVector<QVariant> aVector = mainPackage->getItemsByKey(allKeys,QString("药品代码"));
+                QStringList agentL;
+                for (QVariant &agent:aVector)
+                    agentL<<agent.toString();
+                agentLineDelegate->itemList = agentL.toSet().toList();
+            }
+            if (freshN)
+            {
+                QVector<QVariant> nVector = mainPackage->getItemsByKey(allKeys,QString("药品名"));
+                QStringList nameL;
+                for (QVariant &name:nVector)
+                    nameL<<name.toString();
+                nameLineDelegate->itemList = nameL.toSet().toList();
+            }
+            if (freshM)
+            {
+                QVector<QVariant> mVector = mainPackage->getItemsByKey(allKeys,QString("厂商"));
+                QStringList madeL;
+                for (QVariant &made:mVector)
+                    madeL<<made.toString();
+                madeLineDelegate->itemList = madeL.toSet().toList();
+            }
+        }
+    }
+}
+
+void CBaseEditDlg::parseStrictlyForOut(QString *agentName, QString *name, QString *madeIn)
+{
+    bool freshA = true, freshN = true, freshM = true;
+    QVector<int> allKeys = mainPackage->getAllKey();
+    if (allKeys.count()!=0)
+    {
+        QVector<int> filtKeys;
+        if (!agentName->isEmpty() && allKeys.count()!=0)
+        {
+            filtKeys = mainPackage->filtKeyByField(allKeys, QString("药品代码"), *agentName);
+            if (filtKeys.count()!=0)
+            {
+                allKeys = filtKeys;
+                freshA = false;
+            }
+        }
+        if (!name->isEmpty() && allKeys.count()!=0)
+        {
+            filtKeys = mainPackage->filtKeyByField(allKeys, QString("药品名"), *name);
+            if (filtKeys.count()!=0)
+            {
+                allKeys = filtKeys;
+                freshN = false;
+            }
+        }
+        if (!madeIn->isEmpty() && allKeys.count()!=0)
+        {
+            filtKeys = mainPackage->filtKeyByField(allKeys, QString("厂商"), *madeIn);
+            if (filtKeys.count()!=0)
+            {
+                allKeys = filtKeys;
+                freshM = false;
+            }
+        }
+        if (freshA && freshN && freshM)
+            refreshAllForOut();
+        else
+        {
+            if (freshA)
+            {
+                QVector<QVariant> aVector = mainPackage->getItemsByKey(allKeys,QString("药品代码"));
+                QStringList agentL;
+                for (QVariant &agent:aVector)
+                    agentL<<agent.toString();
+                agentLineDelegate->itemList = agentL.toSet().toList();
+            }
+            if (freshN)
+            {
+                QVector<QVariant> nVector = mainPackage->getItemsByKey(allKeys,QString("药品名"));
+                QStringList nameL;
+                for (QVariant &name:nVector)
+                    nameL<<name.toString();
+                nameComboDelegate->itemList = nameL.toSet().toList();
+            }
+            if (freshM)
+            {
+                QVector<QVariant> mVector = mainPackage->getItemsByKey(allKeys,QString("厂商"));
+                QStringList madeL;
+                for (QVariant &made:mVector)
+                    madeL<<made.toString();
+                madeComboDelegate->itemList = madeL.toSet().toList();
+            }
+        }
+    }
 }
 
 void CBaseEditDlg::submitData()

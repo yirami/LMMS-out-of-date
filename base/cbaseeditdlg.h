@@ -5,11 +5,14 @@
 #include <QDialog>
 #include <QGroupBox>
 #include <QPushButton>
+#include <QLabel>
 #include <QTableView>
 #include <QHeaderView>
 #include <QSpacerItem>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QProgressBar>
+#include <QTime>
 // Data
 #include <QStandardItemModel>
 #include <QItemSelectionModel>
@@ -53,17 +56,24 @@ public:
     CBaseEditDlg(CDatabasePackage *dbPackage, QWidget *parent=0);
     ~CBaseEditDlg();
 protected:
-    QGroupBox *actionBox;
+    QGroupBox *actionBox, *mainBox, *progressBox;
     QPushButton *addB,*deleteB,*cancelB,*checkB;
+    QLabel *progressInfo;
     QTableView *tabV;
+    QProgressBar *progressShow;
 protected:
     void setUI();
     void configModel();
     void setDelegateForIN();
     void setDelegateForOUT();
+    QString parsePrecisely(QString *agentName, QString *name, QString *madeIn);
+    void parseStrictlyForIn(QString *agentName, QString *name, QString *madeIn);
+    void parseStrictlyForOut(QString *agentName, QString *name, QString *madeIn);
     void recoveryBackground();
     virtual bool checkOneRecord(const int idx);
     virtual void submitData();
+    void refreshAllForIn();
+    void refreshAllForOut();
 protected slots:
     void on_addB_clicked();
     void on_deleteB_clicked();

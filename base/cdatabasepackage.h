@@ -30,7 +30,9 @@ public:
     int getResultNum();
     int getNewID();
     QVector<int> getAllKey();
-    QVector<QString> getAllAgentName();
+    QStringList getAllAgentName();
+    QStringList getAllName();
+    QStringList getAllMadeIn();
     QVector<int> getKeyByAgentName(QString agentName);
     QVector<QVariant> getItemsByKey(QVector<int> keys, QString fieldName);
     QVector<int> filtKeyByField(QVector<int> keys, QString fieldName, QString fieldValue);

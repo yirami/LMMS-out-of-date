@@ -6,8 +6,6 @@ CMaintainDlg::CMaintainDlg(CDatabasePackage *dbPackage):CDirectEditDlg(dbPackage
     setDelegate();
     connect(deleteB,SIGNAL(clicked()),this,SLOT(on_deleteB_clicked()));
     connect(submitB,SIGNAL(clicked()),this,SLOT(on_submitB_clicked()));
-
-    showAllRecords();
 }
 
 void CMaintainDlg::setUI()
@@ -54,9 +52,16 @@ void CMaintainDlg::setUI()
     tabV->setSelectionMode( QAbstractItemView::MultiSelection);
     tabV->show();
 
+    mainBox = new QGroupBox(this);
     QHBoxLayout *mlayout = new QHBoxLayout(this);
     mlayout->addWidget(tabV);
     mlayout->addWidget(actionBox);
+//    mainBox->setLayout(mlayout);
+
+//    QVBoxLayout *wlayout = new QVBoxLayout(this);
+//    wlayout->addWidget(mainBox);
+//    wlayout->addWidget(progressBox);
+//    this->setLayout(wlayout);
     this->setLayout(mlayout);
 
     this->setWindowTitle(QString("维护"));
@@ -115,11 +120,10 @@ void CMaintainDlg::setDelegate()
 {
     nameDelegate->itemList = nameList;
     madeDelegate->itemList = madeList;
-    tabV->setItemDelegateForColumn(0,agentDelegate);
-    tabV->setItemDelegateForColumn(1,nameDelegate);
-    tabV->setItemDelegateForColumn(2,madeDelegate);
-    tabV->setItemDelegateForColumn(3,specDelegate);
-    tabV->setItemDelegateForColumn(4,ioDelegate);
+    tabV->setItemDelegateForColumn(1,agentDelegate);
+    tabV->setItemDelegateForColumn(2,nameDelegate);
+    tabV->setItemDelegateForColumn(3,madeDelegate);
+    tabV->setItemDelegateForColumn(4,specDelegate);
     tabV->setItemDelegateForColumn(5,stockDelegate);
     tabV->setItemDelegateForColumn(6,priceDelegate);
 }

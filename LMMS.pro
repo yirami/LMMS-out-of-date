@@ -32,12 +32,12 @@ SOURCES += main.cpp\
     base/cdirecteditdlg.cpp \
     base/cspindelegate.cpp \
     cdetaildlg.cpp \
-    cmaintaindlg.cpp \
     cstoragedlg.cpp \
     base/ccombodelegate.cpp \
     base/cdoublespindelegate.cpp \
     base/clineeditdelegate.cpp \
-    cprescribedlg.cpp
+    cprescribedlg.cpp \
+    cmaintaindlg.cpp
 
 HEADERS  += panel.h \
     base/cbaseeditdlg.h \
