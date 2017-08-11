@@ -23,12 +23,16 @@ CDirectEditDlg::CDirectEditDlg(CDatabasePackage *dbPackage, QWidget *parent):QDi
 
     setUI();
     setAssistant();
-    showAllRecords();
+    on_clearB_clicked();
+    dataModel->setTable("Medicine");
+    dataModel->select();
+
+
 
     normalText.setBrush(QPalette::Text, QBrush(Qt::black));
     errorText.setBrush(QPalette::Text, QBrush(Qt::red));
 
-    connect(allB,SIGNAL(clicked()),this,SLOT(on_allB_clicked()));
+    connect(clearB,SIGNAL(clicked()),this,SLOT(on_clearB_clicked()));
     connect(nameEdit,SIGNAL(textChanged(QString)),this,SLOT(queryChanged()));
     connect(madeEdit,SIGNAL(textChanged(QString)),this,SLOT(queryChanged()));
     connect(stockLEdit,SIGNAL(textChanged(QString)),this,SLOT(queryChanged()));
@@ -117,9 +121,9 @@ void CDirectEditDlg::setUI()
     pricelayout->addStretch(1);
     priceBox->setLayout(pricelayout);
 
-    allB = new QPushButton(this);
-    allB->setMinimumHeight(50);
-    allB->setText("所有");
+    clearB = new QPushButton(this);
+    clearB->setMinimumHeight(50);
+    clearB->setText("清除");
 
     queryBox = new QGroupBox(this);
     queryBox->setFixedWidth(200);
@@ -135,16 +139,37 @@ void CDirectEditDlg::setUI()
     queryboxlayout->addStretch(1);
     queryboxlayout->addWidget(priceBox);
     queryboxlayout->addStretch(2);
-    queryboxlayout->addWidget(allB);
+    queryboxlayout->addWidget(clearB);
     queryboxlayout->addStretch(1);
     queryBox->setLayout(queryboxlayout);
 
-    clearAllEdit();
+    progressBox = new QGroupBox(this);
+    progressBox->setFixedSize(1000,30);
+    progressBox->setStyleSheet("QGroupBox{border:none;}");
+    progressInfo = new QLabel(this);
+    progressInfo->setFixedHeight(20);
+    progressInfo->setFixedWidth(200);
+    progressInfo->setText(QString(""));
+    progressShow = new QProgressBar(this);
+    progressShow->setFixedHeight(20);
+    progressShow->setFixedWidth(750);
+    progressShow->setHidden(true);
+    QHBoxLayout *playout = new QHBoxLayout(this);
+    playout->addWidget(progressInfo);
+    playout->addWidget(progressShow);
+    progressBox->setLayout(playout);
+
 }
 
-void CDirectEditDlg::on_allB_clicked()
+void CDirectEditDlg::on_clearB_clicked()
 {
-    showAllRecords();
+    recoveryTextColor();
+    nameEdit->setText("");
+    madeEdit->setText("");
+    stockLEdit->setText("");
+    stockHEdit->setText("");
+    priceLEdit->setText("");
+    priceHEdit->setText("");
 }
 
 void CDirectEditDlg::queryChanged()
@@ -159,14 +184,6 @@ void CDirectEditDlg::queryChanged()
             qDebug()<<QString("查询失败！");
         }
     }
-}
-
-void CDirectEditDlg::showAllRecords()
-{
-    clearAllEdit();
-    dataModel->setTable("Medicine");
-    dataModel->select();
-
 }
 
 bool CDirectEditDlg::parseOne(QLineEdit *edit, QRegExp rx, int level)
@@ -256,17 +273,6 @@ QString CDirectEditDlg::queryParse()
     return queryStatement;
 }
 
-void CDirectEditDlg::clearAllEdit()
-{
-    recoveryTextColor();
-    nameEdit->setText("");
-    madeEdit->setText("");
-    stockLEdit->setText("");
-    stockHEdit->setText("");
-    priceLEdit->setText("");
-    priceHEdit->setText("");
-}
-
 void CDirectEditDlg::recoveryTextColor()
 {
     nameEdit->setPalette(CDirectEditDlg::normalText);
@@ -289,7 +295,7 @@ void CDirectEditDlg::setAssistant()
     priceLEdit->setValidator(vali3);
     priceHEdit->setValidator(vali3);
 
-    agentDelegate->itemList =  mainPackage->getAllAgentName().toList();
+    agentDelegate->itemList =  mainPackage->getAllAgentName();
     QVector<int> keys = mainPackage->getAllKey();
     QVector<QVariant> nameVector = mainPackage->getItemsByKey(keys,QString("药品名"));
     for (QVariant &name:nameVector)

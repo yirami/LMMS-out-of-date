@@ -9,7 +9,7 @@ CDetailDlg::CDetailDlg(CDatabasePackage *dbPackage):CDirectEditDlg(dbPackage),te
 
 void CDetailDlg::setUI()
 {
-    this->setFixedSize(1000,600);
+    this->setFixedSize(1020,600);
     Qt::WindowFlags flags=Qt::Dialog;
     flags |=Qt::WindowMinimizeButtonHint;
     flags |=Qt::WindowCloseButtonHint;
@@ -47,23 +47,33 @@ void CDetailDlg::setUI()
     tabV->setEditTriggers(QAbstractItemView::NoEditTriggers);
     tabV->show();
 
+    mainBox = new QGroupBox(this);
     QHBoxLayout *mlayout = new QHBoxLayout(this);
     mlayout->addWidget(tabV);
     mlayout->addWidget(actionBox);
-    this->setLayout(mlayout);
+    mainBox->setLayout(mlayout);
 
+    QVBoxLayout *wlayout = new QVBoxLayout(this);
+    wlayout->addWidget(mainBox);
+    wlayout->addWidget(progressBox);
     this->setWindowTitle(QString("清单"));
 }
 
 void CDetailDlg::on_printB_clicked()
 {
+    progressInfo->setText(QString("正在准备数据！"));
     QStringList textList = prepareTextList();
+    progressInfo->setText(QString("数据准备完成！"));
+    progressShow->setRange(0,textList.count());
+    progressShow->setHidden(false);
     printConfig();
+    progressInfo->setText(QString("正在导出数据至文件：'%1'...").arg(outFileName));
     Q_ASSERT(textPainter.begin(&textPrinter));
     QPointF start(20,400);
     writeText(start,textList);
     textPainter.end();
-    reject();
+    progressShow->setValue(textList.count());
+    progressInfo->setText(QString("导出完成！"));
 }
 
 void CDetailDlg::printConfig()
@@ -136,12 +146,13 @@ QStringList CDetailDlg::prepareTextList()
 void CDetailDlg::writeText(QPointF &startP, QStringList &textList)
 {
     QPointF deltaP(0,200);
-    startP += deltaP;
-    startP += deltaP;
     textPainter.drawText(startP,QString("打印时间 @ ").append(makeTime()));
-    foreach (QString text, textList)
+    startP += deltaP;
+    startP += deltaP;
+    for (int idx=0;idx<textList.count();idx++)
     {
-        textPainter.drawText(startP,text);
+        progressShow->setValue(idx);
+        textPainter.drawText(startP,textList.at(idx));
         startP += deltaP;
     }
 }

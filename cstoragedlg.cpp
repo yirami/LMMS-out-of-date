@@ -11,7 +11,7 @@ CStorageDlg::CStorageDlg(CDatabasePackage *dbPackage):CBaseEditDlg(dbPackage)
     dataModel->setHeaderData(5,Qt::Horizontal,QString("库存"));
     dataModel->setHeaderData(6,Qt::Horizontal,QString("单价"));
     setDelegateForIN();
-    agentLineDelegate->itemList =  mainPackage->getAllAgentName().toList();
+    refreshAllForIn();
     connect(dataModel,SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),this,SLOT(refreshList(QModelIndex)));
 }
 
@@ -90,8 +90,11 @@ bool CStorageDlg::checkOneRecord(const int idx)
 
 void CStorageDlg::submitData()
 {
+    progressShow->setRange(0,dataModel->rowCount());
+    progressShow->setHidden(false);
     for (int idx = 0;idx<dataModel->rowCount();idx++)
     {
+        progressShow->setValue(idx);
         QString Name = dataModel->data(dataModel->index(idx,1)).toString();
         QString MadeIn = dataModel->data(dataModel->index(idx,2)).toString();
         mainPackage->oneCommand = QString("SELECT * FROM Medicine WHERE 药品名 = '%1' AND 厂商 = '%2'").arg(Name).arg(MadeIn);
@@ -117,6 +120,7 @@ void CStorageDlg::submitData()
             Q_ASSERT(mainPackage->doOneQuery());
         }
     }
+    progressShow->setValue(dataModel->rowCount());
 }
 
 void CStorageDlg::refreshList(QModelIndex TL)
@@ -125,90 +129,37 @@ void CStorageDlg::refreshList(QModelIndex TL)
     QString thisAgentName = dataModel->data(dataModel->index(thisRow,0)).toString();
     QString thisName = dataModel->data(dataModel->index(thisRow,1)).toString();
     QString thisMadeIn = dataModel->data(dataModel->index(thisRow,2)).toString();
-    if (!thisAgentName.isEmpty())
+    if (thisAgentName.isEmpty() && thisName.isEmpty() && thisMadeIn.isEmpty())
+        refreshAllForIn();
+    else
     {
-        QVector<int> keys = mainPackage->getKeyByAgentName(thisAgentName);
-        if (keys.count()==0)
+        mainPackage->oneCommand = QString("SELECT * FROM Medicine WHERE ");
+        mainPackage->oneCommand.append(parsePrecisely(&thisAgentName, &thisName, &thisMadeIn));
+        Q_ASSERT(mainPackage->doOneQuery());
+        if (mainPackage->getResultNum()==1)
+        {
+            mainPackage->queryFirst();
+            QString SrcAgentName = mainPackage->getOneField(QString("药品代码")).toString();
+            QString SrcName = mainPackage->getOneField(QString("药品名")).toString();
+            QString SrcMadeIn = mainPackage->getOneField(QString("厂商")).toString();
+            QString SrcSpec = mainPackage->getOneField(QString("规格")).toString();
+            int SrcStock = mainPackage->getOneField(QString("库存")).toInt();
+            float SrcPrice = mainPackage->getOneField(QString("单价")).toFloat();
+            dataModel->blockSignals(true);
+            dataModel->setData(dataModel->index(thisRow,0),SrcAgentName);
+            dataModel->setData(dataModel->index(thisRow,1),SrcName);
+            dataModel->setData(dataModel->index(thisRow,2),SrcMadeIn);
+            dataModel->setData(dataModel->index(thisRow,3),SrcSpec);
+            dataModel->setData(dataModel->index(thisRow,5),SrcStock);
+            dataModel->setData(dataModel->index(thisRow,6),SrcPrice);
+            dataModel->blockSignals(false);
+        }
+        else
         {
             dataModel->blockSignals(true);
             dataModel->setData(dataModel->index(thisRow,5),0);
             dataModel->blockSignals(false);
-        }
-        else if (keys.count()==1)
-        {
-            QString SrcName = mainPackage->getItemsByKey(keys,QString("药品名")).at(0).toString();
-            QString SrcMadeIn = mainPackage->getItemsByKey(keys,QString("厂商")).at(0).toString();
-            if (thisName.isEmpty() && thisMadeIn.isEmpty())
-            {
-                QString SrcSpec = mainPackage->getItemsByKey(keys,QString("规格")).at(0).toString();
-                int SrcStock = mainPackage->getItemsByKey(keys,QString("库存")).at(0).toInt();
-                float SrcPrice = mainPackage->getItemsByKey(keys,QString("单价")).at(0).toFloat();
-                dataModel->blockSignals(true);
-                dataModel->setData(dataModel->index(thisRow,1),SrcName);
-                dataModel->setData(dataModel->index(thisRow,2),SrcMadeIn);
-                dataModel->setData(dataModel->index(thisRow,3),SrcSpec);
-                dataModel->setData(dataModel->index(thisRow,5),SrcStock);
-                dataModel->setData(dataModel->index(thisRow,6),SrcPrice);
-                dataModel->blockSignals(false);
-            }
-            else
-            {
-                nameLineDelegate->itemList.clear();
-                nameLineDelegate->itemList<<SrcName;
-                madeLineDelegate->itemList.clear();
-                madeLineDelegate->itemList<<SrcMadeIn;
-            }
-        }
-        else
-        {
-            QVector<QVariant> nameVector, madeVector;
-            bool freshName = false, freshMade = false;
-            if (thisName.isEmpty() && thisMadeIn.isEmpty())
-            {
-                nameVector = mainPackage->getItemsByKey(keys,QString("药品名"));
-                madeVector = mainPackage->getItemsByKey(keys,QString("厂商"));
-                freshName = true;
-                freshMade = true;
-            }
-            else if (thisName.isEmpty() || thisMadeIn.isEmpty())
-            {
-                if (thisName.isEmpty())
-                {
-                    QVector<int> filtedKeys = mainPackage->filtKeyByField(keys,QString("厂商"),thisMadeIn);
-                    if (filtedKeys.count()==0)
-                        nameLineDelegate->itemList.clear();
-                    else
-                    {
-                        nameVector = mainPackage->getItemsByKey(filtedKeys,QString("药品名"));
-                        freshName = true;
-                    }
-                }
-                else
-                {
-                    QVector<int> filtedKeys = mainPackage->filtKeyByField(keys,QString("药品名"),thisName);
-                    if (filtedKeys.count()==0)
-                        madeLineDelegate->itemList.clear();
-                    else
-                    {
-                        madeVector = mainPackage->getItemsByKey(filtedKeys,QString("厂商"));
-                        freshMade = true;
-                    }
-                }
-            }
-            if (freshName)
-            {
-                QStringList nameL;
-                for (QVariant &name:nameVector)
-                    nameL<<name.toString();
-                nameLineDelegate->itemList = nameL;
-            }
-            if (freshMade)
-            {
-                QStringList madeL;
-                for (QVariant &made:madeVector)
-                    madeL<<made.toString();
-                madeLineDelegate->itemList = madeL;
-            }
+            parseStrictlyForIn(&thisAgentName, &thisName, &thisMadeIn);
         }
     }
 }

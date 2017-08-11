@@ -132,9 +132,9 @@ QVector<int> CDatabasePackage::getAllKey()
     return id;
 }
 
-QVector<QString> CDatabasePackage::getAllAgentName()
+QStringList CDatabasePackage::getAllAgentName()
 {
-    QVector<QString> agentNames;
+    QStringList agentNames;
     oneCommand = QString("SELECT %1 FROM Medicine").arg(QString("药品代码"));
     Q_ASSERT(doOneQuery());
     if (getResultNum()!=0)
@@ -142,12 +142,48 @@ QVector<QString> CDatabasePackage::getAllAgentName()
         queryFirst();
         do
         {
-            QVariant oneId = query.record().value("药品代码");
-            Q_ASSERT(oneId.isValid());
-            agentNames.append(oneId.toString());
+            QVariant one = query.record().value("药品代码");
+            Q_ASSERT(one.isValid());
+            agentNames.append(one.toString());
         }while(query.next());
     }
     return agentNames;
+}
+
+QStringList CDatabasePackage::getAllName()
+{
+    QStringList name;
+    oneCommand = QString("SELECT %1 FROM Medicine").arg(QString("药品名"));
+    Q_ASSERT(doOneQuery());
+    if (getResultNum()!=0)
+    {
+        queryFirst();
+        do
+        {
+            QVariant one = query.record().value("药品名");
+            Q_ASSERT(one.isValid());
+            name.append(one.toString());
+        }while(query.next());
+    }
+    return name;
+}
+
+QStringList CDatabasePackage::getAllMadeIn()
+{
+    QStringList madeIn;
+    oneCommand = QString("SELECT %1 FROM Medicine").arg(QString("厂商"));
+    Q_ASSERT(doOneQuery());
+    if (getResultNum()!=0)
+    {
+        queryFirst();
+        do
+        {
+            QVariant one = query.record().value("厂商");
+            Q_ASSERT(one.isValid());
+            madeIn.append(one.toString());
+        }while(query.next());
+    }
+    return madeIn;
 }
 
 QVector<int> CDatabasePackage::getKeyByAgentName(QString agentName)
@@ -203,6 +239,7 @@ void CDatabasePackage::queryFirst()
 
 QVariant CDatabasePackage::getOneField(QString fieldName)
 {
+    Q_ASSERT(query.value(fieldName).isValid());
     QVariant oneField = query.value(fieldName);
     return oneField;
 }
